@@ -1,11 +1,12 @@
+// main.go
 package main
 
 import (
-	"log"
-	"net/http"
-
 	"Praetor/internal/db"
 	"Praetor/internal/handlers"
+	"Praetor/internal/repositories"
+	"log"
+	"net/http"
 )
 
 func main() {
@@ -15,11 +16,15 @@ func main() {
 	}
 	defer database.Close()
 
+	// Create repository
+	phraseRepo := repositories.NewPhraseRepository(database)
+
+	// Create handler with repository
+	phrases := &handlers.PhraseHandler{Repository: phraseRepo}
+
 	router := http.NewServeMux()
-
-	phrases := &handlers.PhraseHandler{DB: database}
-
-	router.HandleFunc("GET /", phrases.List)
+	router.HandleFunc("GET /", phrases.Page)
+	router.HandleFunc("GET /phrases", phrases.List)
 	router.HandleFunc("POST /phrases", phrases.Add)
 	router.HandleFunc("DELETE /phrases/{id}", phrases.Delete)
 

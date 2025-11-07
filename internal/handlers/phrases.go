@@ -1,93 +1,74 @@
 package handlers
 
 import (
-	"database/sql"
-	"log"
-	"net/http"
-
 	"Praetor/internal/models"
+	"Praetor/internal/repositories"
 	"Praetor/internal/templates"
+	"net/http"
+	"strconv"
 )
 
 type PhraseHandler struct {
-	DB *sql.DB
+	Repository *repositories.PhraseRepository
+}
+
+func (h *PhraseHandler) Page(w http.ResponseWriter, r *http.Request) {
+	phrases, err := h.Repository.GetAll()
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	templates.Layout("Phrases", templates.PhrasesPage(phrases)).Render(r.Context(), w)
 }
 
 func (h *PhraseHandler) List(w http.ResponseWriter, r *http.Request) {
-	rows, err := h.DB.Query("SELECT id, text FROM phrases ORDER BY id DESC")
+	phrases, err := h.Repository.GetAll()
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
-	}
-	defer rows.Close()
-
-	var phrases []models.Phrase
-	for rows.Next() {
-		var text string
-		var id int
-		if err := rows.Scan(&id, &text); err == nil {
-			phrases = append(phrases, models.Phrase{ID: id, Text: text})
-		}
-	}
-
-	templates.Layout("Phrases", templates.Phrases(phrases)).Render(r.Context(), w)
-}
-
-func (h *PhraseHandler) Delete(w http.ResponseWriter, r *http.Request) {
-	id := r.PathValue("id")
-	log.Println("Deleting phrase", id)
-	_, err := h.DB.Exec("DELETE FROM phrases WHERE id = ?", id)
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return
-	}
-
-	// Return updated list fragment (for HTMX)
-	rows, err := h.DB.Query("SELECT id, text FROM phrases ORDER BY id DESC")
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return
-	}
-	defer rows.Close()
-
-	var phrases []models.Phrase
-	for rows.Next() {
-		var text string
-		var id int
-		if err := rows.Scan(&id, &text); err == nil {
-			phrases = append(phrases, models.Phrase{ID: id, Text: text})
-		}
 	}
 
 	templates.PhraseList(phrases).Render(r.Context(), w)
+}
+
+func (h *PhraseHandler) Delete(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(r.PathValue("id"))
+
+	if err != nil {
+		http.Error(w, "Invalid ID", 400)
+		return
+	}
+
+	phrase, err := h.Repository.GetByID(id)
+
+	if phrase == nil {
+		http.Error(w, "Phrase not found", 404)
+		return
+	}
+
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	err = h.Repository.Delete(id)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	http.Redirect(w, r, "/phrases", http.StatusSeeOther)
 }
 
 func (h *PhraseHandler) Add(w http.ResponseWriter, r *http.Request) {
 	text := r.FormValue("text")
-	if text != "" {
-		_, err := h.DB.Exec("INSERT INTO phrases (text) VALUES (?)", text)
-		if err != nil {
-			http.Error(w, err.Error(), 500)
-			return
-		}
-	}
 
-	// Return updated list fragment (for HTMX)
-	rows, err := h.DB.Query("SELECT id, text FROM phrases ORDER BY id DESC")
+	phrase, err := h.Repository.Create(text)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
 	}
-	defer rows.Close()
 
-	var phrases []models.Phrase
-	for rows.Next() {
-		var text string
-		var id int
-		if err := rows.Scan(&id, &text); err == nil {
-			phrases = append(phrases, models.Phrase{ID: id, Text: text})
-		}
-	}
-
-	templates.PhraseList(phrases).Render(r.Context(), w)
+	templates.Phrase(models.Phrase(*phrase)).Render(r.Context(), w)
 }
