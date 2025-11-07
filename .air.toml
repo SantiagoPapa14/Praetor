@@ -1,0 +1,15 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  cmd = "templ generate && go build -o ./tmp/main ."
+  bin = "tmp/main"
+  full_bin = "tmp/main"
+  include_ext = ["go", "templ"]
+  exclude_dir = ["tmp"]
+  exclude_regex = ["_templ\\.go"]
+
+[log]
+  time = true
+  color = true
+
