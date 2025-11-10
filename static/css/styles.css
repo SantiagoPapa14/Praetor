@@ -1,0 +1,10 @@
+@font-face {
+  font-family: "MacacoFont";
+  src: url("/static/fonts/Hoshiko\ Satsuki.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+.macaco-title {
+  font-family: "MacacoFont", sans-serif;
+}

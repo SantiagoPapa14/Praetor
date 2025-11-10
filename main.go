@@ -21,9 +21,15 @@ func main() {
 
 	// Create handler with repository
 	phrases := &handlers.PhraseHandler{Repository: phraseRepo}
+	dashboard := &handlers.DashboardHandler{}
 
 	router := http.NewServeMux()
+
+	fs := http.FileServer(http.Dir("./static"))
+	router.Handle("GET /static/", http.StripPrefix("/static/", fs))
+
 	router.HandleFunc("GET /", phrases.Page)
+	router.HandleFunc("GET /dashboard", dashboard.Page)
 	router.HandleFunc("GET /phrases", phrases.List)
 	router.HandleFunc("POST /phrases", phrases.Add)
 	router.HandleFunc("DELETE /phrases/{id}", phrases.Delete)

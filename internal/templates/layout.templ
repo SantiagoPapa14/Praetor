@@ -10,11 +10,10 @@ templ Layout(title string, body templ.Component) {
 			<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 			<script src="https://unpkg.com/htmx.org@latest"></script>
 			<script src="https://unpkg.com/alpinejs@latest" defer></script>
+			<link rel="stylesheet" href="/static/css/styles.css"/>
 		</head>
-		<body class="bg-gray-100 text-gray-900 p-6">
-			<div class="max-w-xl mx-auto bg-white shadow-md rounded p-6">
-				@body
-			</div>
+		<body class="bg-gray-100 text-gray-900">
+			@body
 		</body>
 	</html>
 }
