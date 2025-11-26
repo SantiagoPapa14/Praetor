@@ -1,4 +1,3 @@
-// main.go
 package main
 
 import (
@@ -18,13 +17,12 @@ func main() {
 	defer database.Close()
 
 	// Repositories
-	phraseRepo := repositories.NewPhraseRepository(database)
 	sessionRepo := repositories.NewSessionRepository(database)
+	userRepo := repositories.NewUserRepository(database)
 
 	// Handlers
-	phrases := &handlers.PhraseHandler{Repository: phraseRepo}
 	dashboard := &handlers.DashboardHandler{}
-	authentication := &handlers.AuthenticationHandler{Repository: sessionRepo}
+	authentication := &handlers.AuthenticationHandler{SessionRepository: sessionRepo, UserRepository: userRepo}
 
 	// Router
 	router := http.NewServeMux()
@@ -32,15 +30,13 @@ func main() {
 	fs := http.FileServer(http.Dir("./static"))
 	router.Handle("GET /static/", http.StripPrefix("/static/", fs))
 
-	router.HandleFunc("GET /", phrases.Page)
 	router.HandleFunc("GET /authenticate", authentication.LoginPage)
-	router.HandleFunc("GET /login", authentication.Login)
-	router.HandleFunc("GET /phrases", phrases.List)
-	router.HandleFunc("POST /phrases", phrases.Add)
-	router.HandleFunc("DELETE /phrases/{id}", phrases.Delete)
+	router.HandleFunc("POST /auth/login", authentication.Login)
+	router.HandleFunc("POST /auth/register", authentication.Register)
+	router.HandleFunc("POST /auth/logout", authentication.Logout)
 
 	protected := middleware.AuthMiddleware(sessionRepo, http.HandlerFunc(dashboard.Page))
-	router.Handle("GET /dashboard", protected)
+	router.Handle("GET /", protected)
 
 	server := http.Server{
 		Addr:    "localhost:8080",

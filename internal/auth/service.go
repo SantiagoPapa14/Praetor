@@ -19,7 +19,7 @@ func GenerateToken(size int) (string, error) {
 	return base64.URLEncoding.EncodeToString(b), nil
 }
 
-func createSession(repository repositories.SessionRepository, w http.ResponseWriter, userID int, duration time.Duration) error {
+func CreateSession(repository repositories.SessionRepository, w http.ResponseWriter, userID int, duration time.Duration) error {
 	token, err := GenerateToken(32)
 	if err != nil {
 		return err
@@ -55,6 +55,10 @@ func createSession(repository repositories.SessionRepository, w http.ResponseWri
 	return nil
 }
 
-func Login(repository *repositories.SessionRepository, username string, password string) error {
-	return createSession(*repository, w, userID, 24*time.Hour)
+func DeleteSession(repository repositories.SessionRepository, token string) error {
+	err := repository.Delete(token)
+	if err != nil {
+		return err
+	}
+	return nil
 }
