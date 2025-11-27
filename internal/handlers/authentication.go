@@ -1,9 +1,9 @@
 package handlers
 
 import (
+	"Praetor/internal/app"
 	"Praetor/internal/auth"
 	"Praetor/internal/models"
-	"Praetor/internal/repositories"
 	"Praetor/internal/templates"
 	"log"
 	"net/http"
@@ -11,8 +11,7 @@ import (
 )
 
 type AuthenticationHandler struct {
-	SessionRepository *repositories.SessionRepository
-	UserRepository    *repositories.UserRepository
+	App *app.App
 }
 
 func (h *AuthenticationHandler) LoginPage(w http.ResponseWriter, r *http.Request) {
@@ -24,27 +23,27 @@ func (h *AuthenticationHandler) Login(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("password")
 
 	if email == "" || password == "" {
-		templates.AuthResponseMessage("Email and Password required").Render(r.Context(), w)
+		templates.AuthResponseMessage("Email and Password required", "login-response-message").Render(r.Context(), w)
 		return
 	}
 
-	user, err := h.UserRepository.GetByEmail(email)
+	user, err := h.App.Repos.User.GetByEmail(email)
 	if err != nil {
 		log.Println(err)
-		templates.AuthResponseMessage("Invalid email or password").Render(r.Context(), w)
+		templates.AuthResponseMessage("Invalid email or password", "login-response-message").Render(r.Context(), w)
 		return
 	}
 
 	if password != user.Password {
 		log.Println(err)
-		templates.AuthResponseMessage("Invalid email or password").Render(r.Context(), w)
+		templates.AuthResponseMessage("Invalid email or password", "login-response-message").Render(r.Context(), w)
 		return
 	}
 
-	err = auth.CreateSession(*h.SessionRepository, w, user.ID, 24*time.Hour)
+	err = auth.CreateSession(*h.App.Repos.Session, w, user.ID, 24*time.Hour)
 	if err != nil {
 		log.Println(err)
-		templates.AuthResponseMessage("Error logging you in").Render(r.Context(), w)
+		templates.AuthResponseMessage("Error logging you in", "login-response-message").Render(r.Context(), w)
 		return
 	}
 
@@ -59,12 +58,12 @@ func (h *AuthenticationHandler) Register(w http.ResponseWriter, r *http.Request)
 	confirm_password := r.FormValue("confirm_password")
 
 	if name == "" || email == "" || password == "" || confirm_password == "" {
-		templates.AuthResponseMessage("All fields are required").Render(r.Context(), w)
+		templates.AuthResponseMessage("All fields are required", "register-response-message").Render(r.Context(), w)
 		return
 	}
 
 	if password != confirm_password {
-		templates.AuthResponseMessage("Passwords do not match").Render(r.Context(), w)
+		templates.AuthResponseMessage("Passwords do not match", "register-response-message").Render(r.Context(), w)
 		return
 	}
 
@@ -73,19 +72,19 @@ func (h *AuthenticationHandler) Register(w http.ResponseWriter, r *http.Request)
 		Password: password,
 	}
 
-	err := h.UserRepository.Create(&userToCreate)
+	err := h.App.Repos.User.Create(&userToCreate)
 	if err != nil {
-		templates.AuthResponseMessage("Error registering user").Render(r.Context(), w)
+		templates.AuthResponseMessage("Error registering user", "register-response-message").Render(r.Context(), w)
 		return
 	}
 
-	templates.AuthResponseMessage("User registered successfully").Render(r.Context(), w)
+	templates.AuthCustomResponseMessage("User registered successfully", "register-response-message", "text-center text-green-500 text-sm mt-2").Render(r.Context(), w)
 }
 
 func (h *AuthenticationHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session_id")
 	if err == nil {
-		err = auth.DeleteSession(*h.SessionRepository, cookie.Value)
+		err = auth.DeleteSession(*h.App.Repos.Session, cookie.Value)
 		if err != nil {
 			log.Println(err)
 			return

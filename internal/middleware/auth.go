@@ -1,13 +1,13 @@
 package middleware
 
 import (
-	"Praetor/internal/repositories"
+	"Praetor/internal/app"
 	"context"
 	"net/http"
 	"time"
 )
 
-func AuthMiddleware(sessionRepo *repositories.SessionRepository, next http.Handler) http.Handler {
+func AuthMiddleware(app *app.App, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("session_id")
 		if err != nil {
@@ -15,7 +15,7 @@ func AuthMiddleware(sessionRepo *repositories.SessionRepository, next http.Handl
 			return
 		}
 
-		session, err := sessionRepo.GetByToken(cookie.Value)
+		session, err := app.Repos.Session.GetByToken(cookie.Value)
 		if err != nil {
 			http.Redirect(w, r, "/authenticate", http.StatusSeeOther)
 			return
@@ -23,12 +23,12 @@ func AuthMiddleware(sessionRepo *repositories.SessionRepository, next http.Handl
 
 		expiry, err := time.Parse(time.RFC3339, session.ExpiresAt)
 		if err != nil || expiry.Before(time.Now().UTC()) {
-			_ = sessionRepo.Delete(cookie.Value)
+			_ = app.Repos.Session.Delete(cookie.Value)
 			http.Redirect(w, r, "/authenticate", http.StatusSeeOther)
 			return
 		}
 
-		sessionRepo.UpdateLastSeen(cookie.Value)
+		app.Repos.Session.UpdateLastSeen(cookie.Value)
 
 		ctx := r.Context()
 		ctx = context.WithValue(ctx, "user_id", session.UserID)

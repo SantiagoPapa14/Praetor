@@ -1,7 +1,15 @@
 package templates
 
-templ AuthResponseMessage(msg string) {
-	<div id="response-message" class="text-center text-red-500 text-sm mt-2">
+templ AuthResponseMessage(msg string, id string) {
+	<div id={id}
+	     class="text-center text-red-500 text-sm mt-2">
+        { msg }
+    </div>
+}
+
+templ AuthCustomResponseMessage(msg string, id string, class string) {
+	<div id={id}
+     class={class}>
         { msg }
     </div>
 }
@@ -21,7 +29,7 @@ templ Login() {
 				<form
 					hx-post="/auth/login"
 					hx-trigger="submit"
-					hx-target="#response-message"
+					hx-target="#login-response-message"
 					hx-swap="innerHTML"
 					class="space-y-4"
 				>
@@ -66,7 +74,7 @@ templ Login() {
 					<button type="submit" class="w-full bg-gradient-to-r from-yellow-600 to-yellow-500 text-black font-bold py-3 rounded-lg shadow-lg hover:shadow-yellow-500/50 hover:from-yellow-500 hover:to-yellow-400 transform hover:scale-105 transition duration-300">
 						LOG IN
 					</button>
-                    @AuthResponseMessage("")
+                    @AuthResponseMessage("", "login-response-message")
 				</form>
 				<div class="mt-6 text-center">
 					<p class="text-gray-400 text-sm">
@@ -88,7 +96,7 @@ templ Login() {
 				<form
 					hx-post="/auth/register"
 					hx-trigger="submit"
-					hx-target="#register-response"
+					hx-target="#register-response-message"
 					hx-swap="innerHTML"
 					x-data="{ password: '', confirmPassword: ''}"
 					class="space-y-4"
@@ -170,7 +178,7 @@ templ Login() {
 					>
 						REGISTER
 					</button>
-                    @AuthResponseMessage("")
+                    @AuthResponseMessage("", "register-response-message")
 				</form>
 				<div class="mt-6 text-center">
 					<p class="text-gray-400 text-sm">

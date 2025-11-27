@@ -1,6 +1,7 @@
 package main
 
 import (
+	"Praetor/internal/app"
 	"Praetor/internal/db"
 	"Praetor/internal/handlers"
 	"Praetor/internal/middleware"
@@ -16,13 +17,14 @@ func main() {
 	}
 	defer database.Close()
 
-	// Repositories
-	sessionRepo := repositories.NewSessionRepository(database)
-	userRepo := repositories.NewUserRepository(database)
+	// App
+	application := &app.App{}
+	application.Repos.Session = repositories.NewSessionRepository(database)
+	application.Repos.User = repositories.NewUserRepository(database)
 
 	// Handlers
 	dashboard := &handlers.DashboardHandler{}
-	authentication := &handlers.AuthenticationHandler{SessionRepository: sessionRepo, UserRepository: userRepo}
+	authentication := &handlers.AuthenticationHandler{App: application}
 
 	// Router
 	router := http.NewServeMux()
@@ -35,7 +37,7 @@ func main() {
 	router.HandleFunc("POST /auth/register", authentication.Register)
 	router.HandleFunc("POST /auth/logout", authentication.Logout)
 
-	protected := middleware.AuthMiddleware(sessionRepo, http.HandlerFunc(dashboard.Page))
+	protected := middleware.AuthMiddleware(application, http.HandlerFunc(dashboard.Page))
 	router.Handle("GET /", protected)
 
 	server := http.Server{
