@@ -16,7 +16,7 @@ type AuthenticationHandler struct {
 }
 
 func (h *AuthenticationHandler) LoginPage(w http.ResponseWriter, r *http.Request) {
-	templates.Layout("Macaco Login", templates.Login()).Render(r.Context(), w)
+	templates.Layout("Praetor | Login", templates.Login()).Render(r.Context(), w)
 }
 
 func (h *AuthenticationHandler) Login(w http.ResponseWriter, r *http.Request) {

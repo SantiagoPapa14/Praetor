@@ -8,5 +8,5 @@ import (
 type DashboardHandler struct{}
 
 func (h *DashboardHandler) Page(w http.ResponseWriter, r *http.Request) {
-	templates.Layout("Dashboard", templates.Dashboard()).Render(r.Context(), w)
+	templates.Layout("Preator | Dashboard", templates.Dashboard()).Render(r.Context(), w)
 }
