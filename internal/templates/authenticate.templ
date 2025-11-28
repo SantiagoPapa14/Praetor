@@ -65,13 +65,7 @@ templ Login() {
 							</button>
 						</div>
 					</div>
-					<div class="flex items-center justify-between text-sm">
-						<label class="flex items-center text-yellow-300 cursor-pointer">
-							<input type="checkbox" name="remember" class="mr-2 rounded border-yellow-600 text-yellow-600 focus:ring-yellow-500"/>
-							<span>Remember me</span>
-						</label>
-					</div>
-					<button type="submit" class="w-full bg-gradient-to-r from-yellow-600 to-yellow-500 text-black font-bold py-3 rounded-lg shadow-lg hover:shadow-yellow-500/50 hover:from-yellow-500 hover:to-yellow-400 transform hover:scale-105 transition duration-300">
+					<button type="submit" class="mt-4 w-full bg-gradient-to-r from-yellow-600 to-yellow-500 text-black font-bold py-3 rounded-lg shadow-lg hover:shadow-yellow-500/50 hover:from-yellow-500 hover:to-yellow-400 transform hover:scale-105 transition duration-300">
 						LOG IN
 					</button>
                     @AuthResponseMessage("", "login-response-message")

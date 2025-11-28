@@ -6,5 +6,6 @@ type App struct {
 	Repos struct {
 		Session *repositories.SessionRepository
 		User    *repositories.UserRepository
+		Docker  *repositories.DockerRepository
 	}
 }
