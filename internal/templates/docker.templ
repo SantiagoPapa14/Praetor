@@ -4,6 +4,50 @@ import (
 "fmt"
 )
 
+func getBadgeClass(status string) string {
+    var universal string = "px-2 py-1 text-xs font-medium rounded "
+    switch status {
+    case "running":
+        return universal + "bg-green-100 text-green-700"
+    case "paused":
+        return universal + "bg-yellow-100 text-yellow-700"
+    case "restarting":
+        return universal + "bg-yellow-100 text-yellow-700"
+    case "removing":
+        return universal + "bg-red-100 text-red-700"
+    case "exited":
+        return universal + "bg-red-100 text-red-700"
+    case "dead":
+        return universal + "bg-red-100 text-red-700"
+    case "created":
+        return universal + "bg-gray-100 text-gray-700"
+    default:
+        return universal + "bg-gray-100 text-gray-700"
+    }
+}
+
+func getStatusDotClass(status string) string {
+    var universal string = "w-2 h-2 rounded-full "
+    switch status {
+    case "running":
+        return universal + "bg-green-500"
+    case "paused":
+        return universal + "bg-yellow-500"
+    case "restarting":
+        return universal + "bg-yellow-500"
+    case "removing":
+        return universal + "bg-red-500"
+    case "exited":
+        return universal + "bg-red-500"
+    case "dead":
+        return universal + "bg-red-500"
+    case "created":
+        return universal + "bg-gray-500"
+    default:
+        return universal + "bg-gray-500"
+    }
+}
+
 templ DockerTab(containers []models.Container){
     <div id="docker-tab" x-show="activeTab === 'docker'" class="p-6">
         <div class="flex items-center justify-between mb-4">
@@ -36,16 +80,17 @@ templ DockerTab(containers []models.Container){
     </div>
 }
 
-templ DockerContainer(container models.Container){
-    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+
+templ DockerContainer(container models.Container) {
+    <div id={"docker-" + container.ID}
+        class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-4 flex-1">
-                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                <div class={getStatusDotClass(container.Status)}></div>
                 <div class="flex-1">
                     <div class="flex items-center gap-3">
                         <h3 class="text-sm font-semibold text-gray-900">{container.Names[0]}</h3>
-                        <span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded">{container.Status}</span>
-                        <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded">{container.Image}</span>
+                    <span class={getBadgeClass(container.Status)}>{container.Status}</span>
                     </div>
                     <p class="text-xs text-gray-500 mt-1">Container ID: {container.ID}</p>
                     <div class="flex items-center gap-4 mt-2 text-xs text-gray-500">
@@ -57,8 +102,17 @@ templ DockerContainer(container models.Container){
                 </div>
             </div>
             <div class="flex items-center gap-2">
-                <button class="px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-100 rounded transition-colors">Restart</button>
-                <button class="px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 rounded transition-colors">Stop</button>
+                if container.Status == "running" {
+                    <button class="px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-100 rounded transition-colors">Restart</button>
+                    <button class="px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 rounded transition-colors">Stop</button>
+                } else {
+                    <button 
+                    hx-post={"/dashboard/docker/" + container.ID + "/start"}
+                    hx-target={"#docker-" + container.ID}
+                    hx-swap="outerHTML"
+                    class="px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-100 rounded transition-colors">
+                    Start</button>
+                }
                 <button class="px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-100 rounded transition-colors">Logs</button>
                 <button class="px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-100 rounded transition-colors">Shell</button>
             </div>

@@ -4,6 +4,7 @@ import (
 	"Praetor/internal/models"
 	"context"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/docker/docker/api/types/container"
@@ -47,4 +48,36 @@ func (d *DockerRepository) GetContainers() ([]models.Container, error) {
 	}
 
 	return parsedContainers, nil
+}
+
+func (d *DockerRepository) GetContainer(id string) (models.Container, error) {
+	cont, err := d.Client.ContainerInspect(d.Ctx, id)
+	if err != nil {
+		return models.Container{}, err
+	}
+
+	var ports []int
+	for portStr := range cont.Config.ExposedPorts {
+		portNum := portStr.Port()
+		if port, err := strconv.Atoi(portNum); err == nil {
+			ports = append(ports, port)
+		}
+	}
+
+	return models.Container{
+		ID:      cont.ID,
+		Image:   cont.Config.Image,
+		Names:   []string{cont.Name},
+		Ports:   ports,
+		Created: cont.Created,
+		Status:  cont.State.Status,
+	}, nil
+}
+
+func (d *DockerRepository) StopContainer(id string) error {
+	return d.Client.ContainerStop(d.Ctx, id, container.StopOptions{})
+}
+
+func (d *DockerRepository) StartContainer(id string) error {
+	return d.Client.ContainerStart(d.Ctx, id, container.StartOptions{})
 }

@@ -51,6 +51,7 @@ func main() {
 
 	// Temp
 	router.HandleFunc("GET /dashboard/docker", dashboard.DockerTab)
+	router.HandleFunc("POST /dashboard/docker/{id}/start", dashboard.DockerStart)
 
 	protectedDashboard := middleware.AuthMiddleware(application, http.HandlerFunc(dashboard.Page))
 	router.Handle("GET /", protectedDashboard)
