@@ -46,6 +46,5 @@ func (d *DockerRepository) GetContainers() ([]models.Container, error) {
 		}
 	}
 
-	log.Print(parsedContainers)
 	return parsedContainers, nil
 }

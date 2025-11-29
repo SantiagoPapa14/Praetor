@@ -35,7 +35,7 @@ func main() {
 	application.Repos.Docker = repositories.NewDockerRepository(cli, ctx)
 
 	// Handlers
-	dashboard := &handlers.DashboardHandler{}
+	dashboard := &handlers.DashboardHandler{App: application}
 	authentication := &handlers.AuthenticationHandler{App: application}
 
 	// Router
@@ -50,10 +50,7 @@ func main() {
 	router.HandleFunc("POST /auth/logout", authentication.Logout)
 
 	// Temp
-	tempDockerHandlerFunc := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		application.Repos.Docker.GetContainers()
-	})
-	router.HandleFunc("GET /containers", tempDockerHandlerFunc)
+	router.HandleFunc("GET /dashboard/docker", dashboard.DockerTab)
 
 	protectedDashboard := middleware.AuthMiddleware(application, http.HandlerFunc(dashboard.Page))
 	router.Handle("GET /", protectedDashboard)

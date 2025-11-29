@@ -1,0 +1,67 @@
+package templates
+import (
+"Praetor/internal/models"
+"fmt"
+)
+
+templ DockerTab(containers []models.Container){
+    <div id="docker-tab" x-show="activeTab === 'docker'" class="p-6">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+                <input
+                    type="text"
+                    placeholder="Filter containers..."
+                    class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <select class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option>All Status</option>
+                    <option>Running</option>
+                    <option>Exited</option>
+                    <option>Paused</option>
+                </select>
+            </div>
+            <button 
+            hx-get="/dashboard/docker"
+            hx-target="#docker-tab"
+            hx-swap="outerHTML"
+            class="px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors font-medium">
+                Refresh
+            </button>
+        </div>
+        <div class="space-y-3">
+            for _, container := range containers {
+                @DockerContainer(container)
+            }
+        </div>
+    </div>
+}
+
+templ DockerContainer(container models.Container){
+    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-4 flex-1">
+                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                <div class="flex-1">
+                    <div class="flex items-center gap-3">
+                        <h3 class="text-sm font-semibold text-gray-900">{container.Names[0]}</h3>
+                        <span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded">{container.Status}</span>
+                        <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded">{container.Image}</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">Container ID: {container.ID}</p>
+                    <div class="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                        <span>Uptime: filler</span>
+                        <span>CPU: filler</span>
+                        <span>Memory: filler</span>
+                        <span>Ports: {fmt.Sprint(container.Ports)}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button class="px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-100 rounded transition-colors">Restart</button>
+                <button class="px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 rounded transition-colors">Stop</button>
+                <button class="px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-100 rounded transition-colors">Logs</button>
+                <button class="px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-100 rounded transition-colors">Shell</button>
+            </div>
+        </div>
+    </div>
+}
