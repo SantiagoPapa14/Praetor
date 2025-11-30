@@ -1,0 +1,39 @@
+package templates
+
+templ Modal(content string) {
+    <div 
+        x-data="{ open: true }"
+        x-show="open"
+        @keydown.escape.window="open = false"
+        x-init="$nextTick(() => open = true)"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        
+        <!-- Backdrop -->
+        <div 
+            @click="$root.remove()"
+            class="fixed inset-0 bg-black/50">
+        </div>
+        
+        <!-- Modal -->
+        <div 
+            @click.stop
+            class="relative bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
+            
+            <!-- Close Button -->
+            <button 
+                @click="$root.remove()"
+                class="absolute top-4 right-4 z-10 text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+            
+            <!-- Scrollable Content -->
+           <div 
+            x-init="$nextTick(() => $el.scrollTop = $el.scrollHeight)"
+            class="overflow-y-auto overflow-x-hidden p-6 break-words">
+                <pre class="whitespace-pre-wrap break-all font-mono text-sm">@templ.Raw(content)</pre>
+            </div>
+        </div>
+    </div>
+}

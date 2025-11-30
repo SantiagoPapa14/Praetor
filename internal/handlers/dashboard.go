@@ -25,7 +25,6 @@ func (h *DashboardHandler) DockerTab(w http.ResponseWriter, r *http.Request) {
 
 func (h *DashboardHandler) DockerStart(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
-	log.Println("Starting container: " + id)
 	err := h.App.Repos.Docker.StartContainer(id)
 	if err != nil {
 		log.Println(err)
@@ -37,4 +36,44 @@ func (h *DashboardHandler) DockerStart(w http.ResponseWriter, r *http.Request) {
 	}
 
 	templates.DockerContainer(cont).Render(r.Context(), w)
+}
+
+func (h *DashboardHandler) DockerStop(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	err := h.App.Repos.Docker.StopContainer(id)
+	if err != nil {
+		log.Println(err)
+	}
+
+	cont, err := h.App.Repos.Docker.GetContainer(id)
+	if err != nil {
+		log.Println(err)
+	}
+
+	templates.DockerContainer(cont).Render(r.Context(), w)
+}
+
+func (h *DashboardHandler) DockerRestart(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	err := h.App.Repos.Docker.RestartContainer(id)
+	if err != nil {
+		log.Println(err)
+	}
+
+	cont, err := h.App.Repos.Docker.GetContainer(id)
+	if err != nil {
+		log.Println(err)
+	}
+
+	templates.DockerContainer(cont).Render(r.Context(), w)
+}
+
+func (h *DashboardHandler) DockerLogs(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	logs, err := h.App.Repos.Docker.GetContainerLogs(id, "500")
+	if err != nil {
+		log.Println(err)
+	}
+
+	templates.DockerLogs(logs).Render(r.Context(), w)
 }

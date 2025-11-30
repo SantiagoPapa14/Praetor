@@ -7,4 +7,5 @@ type Container struct {
 	Ports   []int
 	Created string
 	Status  string
+	Uptime  string
 }

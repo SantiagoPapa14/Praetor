@@ -49,9 +49,12 @@ func main() {
 	router.HandleFunc("POST /auth/register", authentication.Register)
 	router.HandleFunc("POST /auth/logout", authentication.Logout)
 
-	// Temp
+	// Temp these need to be protected
 	router.HandleFunc("GET /dashboard/docker", dashboard.DockerTab)
 	router.HandleFunc("POST /dashboard/docker/{id}/start", dashboard.DockerStart)
+	router.HandleFunc("POST /dashboard/docker/{id}/stop", dashboard.DockerStop)
+	router.HandleFunc("POST /dashboard/docker/{id}/restart", dashboard.DockerRestart)
+	router.HandleFunc("GET /dashboard/docker/{id}/logs", dashboard.DockerLogs)
 
 	protectedDashboard := middleware.AuthMiddleware(application, http.HandlerFunc(dashboard.Page))
 	router.Handle("GET /", protectedDashboard)
