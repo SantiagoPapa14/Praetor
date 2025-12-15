@@ -8,3 +8,12 @@
 .macaco-title {
   font-family: "MacacoFont", sans-serif;
 }
+
+.htmx-indicator {
+  display: none !important;
+}
+
+.htmx-request .htmx-indicator {
+  display: inline-block !important;
+}
+
