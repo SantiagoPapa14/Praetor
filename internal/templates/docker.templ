@@ -92,7 +92,7 @@ templ DockerTab(containers []models.Container){
 
 
 templ DockerContainer(container models.Container) {
-    <div id={"docker-" + container.ID}
+    <div id={"docker-" + container.ID} data-docker-container
         x-show={"(search === '' || '" + container.Names[0] + "'.toLowerCase().includes(search.toLowerCase()) || '" + container.ID + "'.toLowerCase().includes(search.toLowerCase())) && (statusFilter === 'all' || '" + container.Status + "' === statusFilter)"}
         class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
         <div class="flex items-center justify-between">
@@ -120,9 +120,7 @@ templ DockerContainer(container models.Container) {
                     hx-target={"#docker-" + container.ID}
                     hx-swap="outerHTML"
                     class="px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-100 rounded transition-colors flex flex-row gap-1">
-                    <svg viewBox="0 0 24 24" fill="none" class="w-4 h-4">
-                        <path d="M19.7285 10.9288C20.4413 13.5978 19.7507 16.5635 17.6569 18.6573C15.1798 21.1344 11.4826 21.6475 8.5 20.1966M18.364 8.05071L17.6569 7.3436C14.5327 4.21941 9.46736 4.21941 6.34316 7.3436C3.42964 10.2571 3.23318 14.8588 5.75376 18M18.364 8.05071H14.1213M18.364 8.05071V3.80807" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                    </svg>
+                    @RestartIcon("w-4 h-4 text-gray-500")
                     Restart
                     </button>
 
@@ -132,10 +130,7 @@ templ DockerContainer(container models.Container) {
                     hx-indicator={"#loader-" + container.ID}
                     hx-swap="outerHTML"
                     class="px-3 py-1.5 text-xs text-red-600 bg-red-100 hover:bg-red-200 rounded transition-colors flex items-center gap-1">
-                    <svg viewBox="0 0 24 24" fill="none" class="w-4 h-4">
-                        <path d="M12 21C10.22 21 8.47991 20.4722 6.99987 19.4832C5.51983 18.4943 4.36628 17.0887 3.68509 15.4442C3.0039 13.7996 2.82567 11.99 3.17294 10.2442C3.5202 8.49836 4.37737 6.89472 5.63604 5.63604C6.89472 4.37737 8.49836 3.5202 10.2442 3.17294C11.99 2.82567 13.7996 3.0039 15.4442 3.68509C17.0887 4.36628 18.4943 5.51983 19.4832 6.99987C20.4722 8.47991 21 10.22 21 12C21 14.387 20.0518 16.6761 18.364 18.364C16.6761 20.0518 14.387 21 12 21ZM12 4.5C10.5166 4.5 9.0666 4.93987 7.83323 5.76398C6.59986 6.58809 5.63856 7.75943 5.07091 9.12988C4.50325 10.5003 4.35473 12.0083 4.64411 13.4632C4.9335 14.918 5.64781 16.2544 6.6967 17.3033C7.7456 18.3522 9.08197 19.0665 10.5368 19.3559C11.9917 19.6453 13.4997 19.4968 14.8701 18.9291C16.2406 18.3614 17.4119 17.4001 18.236 16.1668C19.0601 14.9334 19.5 13.4834 19.5 12C19.5 10.0109 18.7098 8.10323 17.3033 6.6967C15.8968 5.29018 13.9891 4.5 12 4.5Z" fill="currentColor"></path>
-                        <path d="M14.5 8H9.5C8.67157 8 8 8.67157 8 9.5V14.5C8 15.3284 8.67157 16 9.5 16H14.5C15.3284 16 16 15.3284 16 14.5V9.5C16 8.67157 15.3284 8 14.5 8Z" fill="currentColor"></path>
-                    </svg>
+                    @StopIcon("w-4 h-4 text-red-500")
                     Stop
                     </button>
 
@@ -146,9 +141,7 @@ templ DockerContainer(container models.Container) {
                     hx-indicator={"#loader-" + container.ID}
                     hx-swap="outerHTML"
                     class="px-3 py-1.5 text-xs text-green-600 bg-green-100 hover:bg-green-200 rounded transition-colors flex items-center">
-                    <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
-                    </svg>
+                    @StartIcon("w-4 h-4 mr-1 text-green-500")
                     Start
                     </button>
                 }
@@ -159,6 +152,14 @@ templ DockerContainer(container models.Container) {
                     @click="$dispatch('open-modal')"
                     class="px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-100 rounded transition-colors">
                     Logs
+                </button>
+                <button 
+                    hx-delete={"/dashboard/docker/" + container.ID}
+                    hx-target={"#docker-" + container.ID}
+                    hx-confirm="Are you sure you want to delete this container?"
+                    hx-swap="outerHTML"
+                    class="p-2 hover:bg-red-50 rounded transition-colors">
+                    @TrashIcon("w-5 h-5 text-red-500")
                 </button>
                 <img 
                 src="https://www.svgrepo.com/show/346059/loader-4-fill.svg" 

@@ -68,6 +68,17 @@ func (h *DashboardHandler) DockerRestart(w http.ResponseWriter, r *http.Request)
 	templates.DockerContainer(cont).Render(r.Context(), w)
 }
 
+func (h *DashboardHandler) DockerRemove(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	err := h.App.Repos.Docker.DeleteContainer(id)
+	if err != nil {
+		log.Println(err)
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(""))
+}
+
 func (h *DashboardHandler) DockerLogs(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	logs, err := h.App.Repos.Docker.GetContainerLogs(id, "500")

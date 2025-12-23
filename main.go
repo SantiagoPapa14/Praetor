@@ -55,6 +55,7 @@ func main() {
 	router.HandleFunc("POST /dashboard/docker/{id}/stop", dashboard.DockerStop)
 	router.HandleFunc("POST /dashboard/docker/{id}/restart", dashboard.DockerRestart)
 	router.HandleFunc("GET /dashboard/docker/{id}/logs", dashboard.DockerLogs)
+	router.HandleFunc("DELETE /dashboard/docker/{id}", dashboard.DockerRemove)
 
 	protectedDashboard := middleware.AuthMiddleware(application, http.HandlerFunc(dashboard.Page))
 	router.Handle("GET /", protectedDashboard)

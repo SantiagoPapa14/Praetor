@@ -85,6 +85,10 @@ func (d *DockerRepository) RestartContainer(id string) error {
 	return d.Client.ContainerRestart(d.Ctx, id, container.StopOptions{})
 }
 
+func (d *DockerRepository) DeleteContainer(id string) error {
+	return d.Client.ContainerRemove(d.Ctx, id, container.RemoveOptions{})
+}
+
 func summaryToLocalModel(c container.Summary) models.Container {
 	var ports []int
 	for _, p := range c.Ports {

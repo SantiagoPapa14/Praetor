@@ -13,7 +13,7 @@
   display: none !important;
 }
 
-.htmx-request .htmx-indicator {
+.htmx-indicator.htmx-request {
   display: inline-block !important;
 }
 
